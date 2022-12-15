@@ -1,7 +1,13 @@
 name: "my-website"
 output_dir: "."
 navbar:
-  title: "Kieran Todd's Website"
+  title: "KPT BST 260 Final Project Fall 2022"
   left:
     - text: "Home"
       href: index.html
+    - text: "Dataset and Question"
+      href: introduction.html
+    - text: "Results"
+      href: results.html
+    - text: "Conclusion"
+      href: conclusion.html

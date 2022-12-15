@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Results</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -237,21 +237,12 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">KPT BST 260 Final Project Fall 2022</a>
+      <a class="navbar-brand" href="index.html">Kieran Todd's Website</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">Home</a>
-</li>
-<li>
-  <a href="introduction.html">Dataset and Question</a>
-</li>
-<li>
-  <a href="results.html">Results</a>
-</li>
-<li>
-  <a href="conclusion.html">Conclusion</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -265,14 +256,97 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Results</h1>
 
 </div>
 
 
-<p>A Simple Difference-in-Differences Analysis of the Association
-between State-Level Transgender Policy and Number of Bad Mental Health
-Days in Nevada and Arizona</p>
+<p><strong>Results</strong></p>
+<p>Wrangling the data was necessary for the needs of the analytic
+technique chosen – a difference-in-differences model. The data was
+originally filled with “n/a” observations, so removing any rows with
+“n/a” allowed for a complete data frame from which to work. Futher,
+combining the 2010 and 2020 BRFSS datasets into one dataframe was made
+easier by selecting only the columns that would be needed to conduct the
+simple difference-in-differences analysis.</p>
+<p><em>The brfss 2010 data before wrangling</em></p>
+<pre class="r"><code>og_brfss10 &lt;-read_xpt(&quot;/Users/kierantodd/Desktop/CDBRFS10.XPT&quot;)
+head(og_brfss10)</code></pre>
+<pre><code>## # A tibble: 6 × 397
+##   _STAT…¹ _GEOS…² _DENS…³ PRECALL REPNUM REPDE…⁴ FMONTH IDATE IMONTH IDAY  IYEAR
+##     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;
+## 1       1       9       2       1 120127      25     12 1230… 12     30    2010 
+## 2       1      13       1       1  10170      26      1 0202… 02     02    2010 
+## 3       1      17       2       1  80197      23      8 0818… 08     18    2010 
+## 4       1       4       1       1 100041      19     10 1101… 11     01    2010 
+## 5       1      13       1       1 120172      28     12 1230… 12     30    2010 
+## 6       1       8       2       1 100106       3     10 1008… 10     08    2010 
+## # … with 386 more variables: INTVID &lt;chr&gt;, DISPCODE &lt;dbl&gt;, SEQNO &lt;dbl&gt;,
+## #   `_PSU` &lt;dbl&gt;, NATTMPTS &lt;dbl&gt;, NRECSEL &lt;dbl&gt;, NRECSTR &lt;dbl&gt;, CTELENUM &lt;dbl&gt;,
+## #   CELLFON &lt;dbl&gt;, PVTRESID &lt;dbl&gt;, NUMADULT &lt;dbl&gt;, NUMMEN &lt;dbl&gt;,
+## #   NUMWOMEN &lt;dbl&gt;, GENHLTH &lt;dbl&gt;, PHYSHLTH &lt;dbl&gt;, MENTHLTH &lt;dbl&gt;,
+## #   POORHLTH &lt;dbl&gt;, HLTHPLAN &lt;dbl&gt;, PERSDOC2 &lt;dbl&gt;, MEDCOST &lt;dbl&gt;,
+## #   CHECKUP1 &lt;dbl&gt;, QLREST2 &lt;dbl&gt;, EXERANY2 &lt;dbl&gt;, DIABETE2 &lt;dbl&gt;,
+## #   LASTDEN3 &lt;dbl&gt;, RMVTETH3 &lt;dbl&gt;, DENCLEAN &lt;dbl&gt;, CVDINFR4 &lt;dbl&gt;, …</code></pre>
+<p><em>The BRFSS 2020 data before wrangling</em></p>
+<pre class="r"><code>og_brfss20 &lt;-read_xpt(&quot;/Users/kierantodd/Desktop/LLCP2020.XPT&quot;)
+head(og_brfss20)</code></pre>
+<pre><code>## # A tibble: 6 × 279
+##   `_STATE` FMONTH IDATE  IMONTH IDAY  IYEAR DISPC…¹ SEQNO `_PSU` CTELE…² PVTRE…³
+##      &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1        1      1 01042… 01     04    2020     1100 2020… 2.02e9       1       1
+## 2        1      1 02072… 02     07    2020     1200 2020… 2.02e9       1       1
+## 3        1      1 01232… 01     23    2020     1100 2020… 2.02e9       1       1
+## 4        1      1 01092… 01     09    2020     1100 2020… 2.02e9       1       1
+## 5        1      1 01042… 01     04    2020     1100 2020… 2.02e9       1       1
+## 6        1      1 01092… 01     09    2020     1100 2020… 2.02e9       1       1
+## # … with 268 more variables: COLGHOUS &lt;dbl&gt;, STATERE1 &lt;dbl&gt;, CELPHONE &lt;dbl&gt;,
+## #   LADULT1 &lt;dbl&gt;, COLGSEX &lt;dbl&gt;, NUMADULT &lt;dbl&gt;, LANDSEX &lt;dbl&gt;, NUMMEN &lt;dbl&gt;,
+## #   NUMWOMEN &lt;dbl&gt;, RESPSLCT &lt;dbl&gt;, SAFETIME &lt;dbl&gt;, CTELNUM1 &lt;dbl&gt;,
+## #   CELLFON5 &lt;dbl&gt;, CADULT1 &lt;dbl&gt;, CELLSEX &lt;dbl&gt;, PVTRESD3 &lt;dbl&gt;,
+## #   CCLGHOUS &lt;dbl&gt;, CSTATE1 &lt;dbl&gt;, LANDLINE &lt;dbl&gt;, HHADULT &lt;dbl&gt;, SEXVAR &lt;dbl&gt;,
+## #   GENHLTH &lt;dbl&gt;, PHYSHLTH &lt;dbl&gt;, MENTHLTH &lt;dbl&gt;, POORHLTH &lt;dbl&gt;,
+## #   HLTHPLN1 &lt;dbl&gt;, PERSDOC2 &lt;dbl&gt;, MEDCOST &lt;dbl&gt;, CHECKUP1 &lt;dbl&gt;, …</code></pre>
+<p><em>Run a simple 2x2 difference in difference model using a linear
+probability model</em></p>
+<pre class="r"><code>did_model1 &lt;- lm(outcome ~ factor(STATE)*factor(YEAR), data=brfss_analysis)
+summary(did_model1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = outcome ~ factor(STATE) * factor(YEAR), data = brfss_analysis)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -4.593 -4.065 -3.669 -1.065 26.331 
+## 
+## Coefficients:
+##                                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                            3.7727     0.1323  28.518   &lt;2e-16 ***
+## factor(STATE)Nevada                   -0.1036     0.1876  -0.553   0.5806    
+## factor(YEAR)2020                       0.2921     0.1765   1.655   0.0979 .  
+## factor(STATE)Nevada:factor(YEAR)2020   0.6313     0.2829   2.232   0.0256 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 8.283 on 15022 degrees of freedom
+## Multiple R-squared:  0.001357,   Adjusted R-squared:  0.001158 
+## F-statistic: 6.806 on 3 and 15022 DF,  p-value: 0.0001398</code></pre>
+<p>Data from 15304 adults who participated in the BRFSS in 2010 and 2020
+– 9167 adults from Arizona and 6137 adults from Nevada. In this simple
+2x2 difference-in-difference analysis, being in was associated with a
+statistically significant increase in the number of bad mental health
+days among those who live in Nevada.</p>
+<p>In 2010, on average, the number of bad mental health days in Nevada
+was 1.04 days lower than in Arizona.</p>
+<p>In 2020, on average, the number of bad mental health days in Nevada
+was 0.29 days less than the average number of bad mental health days in
+Nevada in 2010.</p>
+<p>The difference-in-difference estimate we can interpret as follows: in
+2020, the number of bad mental health days among those in Nevada was, on
+average, an additional 0.63 days more than Arizona in the same year. If
+the difference-in-difference identifying assumptions hold, then this
+represents the causal effect of an increase in LGBTQ policy tally in
+Nevada relative to Arizona that maintained a low LGBTQ policy tally</p>
 
 
 

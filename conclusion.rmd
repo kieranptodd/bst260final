@@ -1,0 +1,19 @@
+---
+title: "Conclusion"
+---
+**Conclusion**
+
+The data analysis suggests that Nevada, a state that Nevada may have had an uncommon shock that Arizona did not experience, does not allow us to distinguish the effect of treatment from the effect of the uncommon shock. Additionally, it is of note that the trajectory for both Arizona and Nevada shows that the number of bad mental health days was in the positive direction. This might require more theoretical investigation into what other events, political or not, that may be impacting overall mental health for residents in those states. 
+Potential Violations of difference-in-difference identifying assumptions: parallel pre-trends
+
+In this analysis we assumed that the pre-trends were parallel among those who lived in Nevada and those who lived in Arizona. However, for several reasons, it could be possible that this is not true. Some economists argue that the parallel pre-trends assumption may be less valid over a longer period of time. Particularly if changes in the make-up of the populations of Arizona and Nevada, whereby the study period of ten years (2010 - 2020) may influence whether parallel pre-trends are a valid assumption to make. 
+
+*Future steps for future analyses*
+
+The purpose of this simple difference-in-difference analysis was to see if there were any significant differences in the change of the average number of bad mental health days between a state that had no change in policy tally for affirming gender identity, and a state that had a high level of change in policy tally for affirming gender identity, as defined by MAP. To account for time-invariant, state-specific factors would allow us to better account for differences in average bad mental health days across all states at baseline (2010) – using state fixed effects and including many more, if not all states, would yield a more robust and useful analysis in some ways.
+
+**References**
+1. CDC - BRFSS. (2022, August 29). https://www.cdc.gov/brfss/index.html
+
+2. MAP. (2022). Movement Advancement Project | Snapshot. https://www.lgbtmap.org/equality-maps
+
