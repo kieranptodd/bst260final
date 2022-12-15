@@ -2,7 +2,9 @@ BST260 Code and Plots
 ================
 2022-12-15
 
-## Introduction
+## A Simple Difference-in-Differences Analysis of the Association between State-Level Transgender Policy and Number of Bad Mental Health Days in Nevada and Arizona
+
+**Introduction**
 
 The past several years have ushered in both excitement and dismay at the
 influx of both protective and anti-transgender policies at the state
@@ -186,6 +188,64 @@ ggplot( data=agg, aes(x=as.factor(YEAR), y=val, group=STATE,
 
 ![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
+**Results**
+
+Wrangling the data was necessary for the needs of the analytic technique
+chosen – a difference-in-differences model. The data was originally
+filled with “n/a” observations, so removing any rows with “n/a” allowed
+for a complete data frame from which to work. Futher, combining the 2010
+and 2020 BRFSS datasets into one dataframe was made easier by selecting
+only the columns that would be needed to conduct the simple
+difference-in-differences analysis.
+
+*The brfss 2010 data before wrangling*
+
+``` r
+og_brfss10 <-read_xpt("/Users/kierantodd/Desktop/CDBRFS10.XPT")
+head(og_brfss10)
+```
+
+    ## # A tibble: 6 × 397
+    ##   _STAT…¹ _GEOS…² _DENS…³ PRECALL REPNUM REPDE…⁴ FMONTH IDATE IMONTH IDAY  IYEAR
+    ##     <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl>  <dbl> <chr> <chr>  <chr> <chr>
+    ## 1       1       9       2       1 120127      25     12 1230… 12     30    2010 
+    ## 2       1      13       1       1  10170      26      1 0202… 02     02    2010 
+    ## 3       1      17       2       1  80197      23      8 0818… 08     18    2010 
+    ## 4       1       4       1       1 100041      19     10 1101… 11     01    2010 
+    ## 5       1      13       1       1 120172      28     12 1230… 12     30    2010 
+    ## 6       1       8       2       1 100106       3     10 1008… 10     08    2010 
+    ## # … with 386 more variables: INTVID <chr>, DISPCODE <dbl>, SEQNO <dbl>,
+    ## #   `_PSU` <dbl>, NATTMPTS <dbl>, NRECSEL <dbl>, NRECSTR <dbl>, CTELENUM <dbl>,
+    ## #   CELLFON <dbl>, PVTRESID <dbl>, NUMADULT <dbl>, NUMMEN <dbl>,
+    ## #   NUMWOMEN <dbl>, GENHLTH <dbl>, PHYSHLTH <dbl>, MENTHLTH <dbl>,
+    ## #   POORHLTH <dbl>, HLTHPLAN <dbl>, PERSDOC2 <dbl>, MEDCOST <dbl>,
+    ## #   CHECKUP1 <dbl>, QLREST2 <dbl>, EXERANY2 <dbl>, DIABETE2 <dbl>,
+    ## #   LASTDEN3 <dbl>, RMVTETH3 <dbl>, DENCLEAN <dbl>, CVDINFR4 <dbl>, …
+
+*The BRFSS 2020 data before wrangling*
+
+``` r
+og_brfss20 <-read_xpt("/Users/kierantodd/Desktop/LLCP2020.XPT")
+head(og_brfss20)
+```
+
+    ## # A tibble: 6 × 279
+    ##   `_STATE` FMONTH IDATE  IMONTH IDAY  IYEAR DISPC…¹ SEQNO `_PSU` CTELE…² PVTRE…³
+    ##      <dbl>  <dbl> <chr>  <chr>  <chr> <chr>   <dbl> <chr>  <dbl>   <dbl>   <dbl>
+    ## 1        1      1 01042… 01     04    2020     1100 2020… 2.02e9       1       1
+    ## 2        1      1 02072… 02     07    2020     1200 2020… 2.02e9       1       1
+    ## 3        1      1 01232… 01     23    2020     1100 2020… 2.02e9       1       1
+    ## 4        1      1 01092… 01     09    2020     1100 2020… 2.02e9       1       1
+    ## 5        1      1 01042… 01     04    2020     1100 2020… 2.02e9       1       1
+    ## 6        1      1 01092… 01     09    2020     1100 2020… 2.02e9       1       1
+    ## # … with 268 more variables: COLGHOUS <dbl>, STATERE1 <dbl>, CELPHONE <dbl>,
+    ## #   LADULT1 <dbl>, COLGSEX <dbl>, NUMADULT <dbl>, LANDSEX <dbl>, NUMMEN <dbl>,
+    ## #   NUMWOMEN <dbl>, RESPSLCT <dbl>, SAFETIME <dbl>, CTELNUM1 <dbl>,
+    ## #   CELLFON5 <dbl>, CADULT1 <dbl>, CELLSEX <dbl>, PVTRESD3 <dbl>,
+    ## #   CCLGHOUS <dbl>, CSTATE1 <dbl>, LANDLINE <dbl>, HHADULT <dbl>, SEXVAR <dbl>,
+    ## #   GENHLTH <dbl>, PHYSHLTH <dbl>, MENTHLTH <dbl>, POORHLTH <dbl>,
+    ## #   HLTHPLN1 <dbl>, PERSDOC2 <dbl>, MEDCOST <dbl>, CHECKUP1 <dbl>, …
+
 *Run a simple 2x2 difference in difference model using a linear
 probability model*
 
@@ -235,7 +295,7 @@ the difference-in-difference identifying assumptions hold, then this
 represents the causal effect of an increase in LGBTQ policy tally in
 Nevada relative to Arizona that maintained a low LGBTQ policy tally
 
-Conclusion
+**Conclusion**
 
 The data analysis suggests that Nevada, a state that Nevada may have had
 an uncommon shock that Arizona did not experience, does not allow us to
@@ -268,3 +328,9 @@ would allow us to better account for differences in average bad mental
 health days across all states at baseline (2010) – using state fixed
 effects and including many more, if not all states, would yield a more
 robust and useful analysis in some ways.
+
+**References** 1. CDC - BRFSS. (2022, August 29).
+<https://www.cdc.gov/brfss/index.html>
+
+2.  MAP. (2022). Movement Advancement Project \| Snapshot.
+    <https://www.lgbtmap.org/equality-maps>

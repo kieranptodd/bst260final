@@ -18,7 +18,12 @@ library(ggplot2)
 
 ```
 
-## Introduction
+
+## A Simple Difference-in-Differences Analysis of the Association between State-Level Transgender Policy and Number of Bad Mental Health Days in Nevada and Arizona
+
+
+
+**Introduction**
 
 The past several years have ushered in both excitement and dismay at the influx of both protective and anti-transgender policies at the state level. In 2020 alone, just about half of US states (e.g., 23 states) introduced anti-transgender bills that spanned aspects of transgender life, health and wellness related to exclusion from athletics, implementing barriers to health care, and policies that limit the decision-making ability for transgender youth and their families. Some other states responded to transgender needs by expanding access to health care, and codifying protections(ACLU, 2022). The political landscape between 2016 and 2020 set the stage for transgender human rights to be fought for and against in local, state, and federal policy.
 
@@ -132,8 +137,23 @@ ggplot( data=agg, aes(x=as.factor(YEAR), y=val, group=STATE,
 
 ```
 
+**Results**
 
+Wrangling the data was necessary for the needs of the analytic technique chosen -- a difference-in-differences model. The data was originally filled with "n/a" observations, so removing any rows with "n/a" allowed for a complete data frame from which to work. Futher, combining the 2010 and 2020 BRFSS datasets into one dataframe was made easier by selecting only the columns that would be needed to conduct the simple difference-in-differences analysis. 
 
+*The brfss 2010 data before wrangling*
+```{r}
+og_brfss10 <-read_xpt("/Users/kierantodd/Desktop/CDBRFS10.XPT")
+head(og_brfss10)
+```
+
+*The BRFSS 2020 data before wrangling*
+```{r}
+og_brfss20 <-read_xpt("/Users/kierantodd/Desktop/LLCP2020.XPT")
+head(og_brfss20)
+                  
+
+```
 *Run a simple 2x2 difference in difference model using a linear probability model*
 ```{r}
 did_model1 <- lm(outcome ~ factor(STATE)*factor(YEAR), data=brfss_analysis)
@@ -150,7 +170,7 @@ Data from 15304 adults who participated in the BRFSS in 2010 and 2020 – 9167 a
   The difference-in-difference estimate we can interpret as follows: in 2020, the number of bad mental health days among those in Nevada was, on average, an additional 0.63 days more than Arizona in the same year. If the difference-in-difference identifying assumptions hold, then this represents the causal effect of an increase in LGBTQ policy tally in Nevada relative to Arizona that maintained a low LGBTQ policy tally
 
 
-Conclusion
+**Conclusion**
 
 The data analysis suggests that Nevada, a state that Nevada may have had an uncommon shock that Arizona did not experience, does not allow us to distinguish the effect of treatment from the effect of the uncommon shock. Additionally, it is of note that the trajectory for both Arizona and Nevada shows that the number of bad mental health days was in the positive direction. This might require more theoretical investigation into what other events, political or not, that may be impacting overall mental health for residents in those states. 
 Potential Violations of difference-in-difference identifying assumptions: parallel pre-trends
@@ -160,3 +180,9 @@ In this analysis we assumed that the pre-trends were parallel among those who li
 *Future steps for future analyses*
 
 The purpose of this simple difference-in-difference analysis was to see if there were any significant differences in the change of the average number of bad mental health days between a state that had no change in policy tally for affirming gender identity, and a state that had a high level of change in policy tally for affirming gender identity, as defined by MAP. To account for time-invariant, state-specific factors would allow us to better account for differences in average bad mental health days across all states at baseline (2010) – using state fixed effects and including many more, if not all states, would yield a more robust and useful analysis in some ways.
+
+**References**
+1. CDC - BRFSS. (2022, August 29). https://www.cdc.gov/brfss/index.html
+
+2. MAP. (2022). Movement Advancement Project | Snapshot. https://www.lgbtmap.org/equality-maps
+
