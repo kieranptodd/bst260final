@@ -1,0 +1,7 @@
+name: "my-website"
+output_dir: "."
+navbar:
+  title: "Kieran Todd's Website"
+  left:
+    - text: "Home"
+      href: index.html
