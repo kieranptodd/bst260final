@@ -18,22 +18,37 @@ library(ggplot2)
 
 ```
 
-## Read in Behavioral Risk Factor Surveillance System data from 2010 
+##Introduction
+
+The past several years have ushered in both excitement and dismay at the influx of both protective and anti-transgender policies at the state level. In 2020 alone, just about half of US states (e.g., 23 states) introduced anti-transgender bills that spanned aspects of transgender life, health and wellness related to exclusion from athletics, implementing barriers to health care, and policies that limit the decision-making ability for transgender youth and their families. Some other states responded to transgender needs by expanding access to health care, and codifying protections(ACLU, 2022). The political landscape between 2016 and 2020 set the stage for transgender human rights to be fought for and against in local, state, and federal policy.
+
+To investigate the implications of policy changes on the mental health of transgender adults, this study will seek to estimate  the association between pro-transgender gender identity-specific policies and the average number of bad mental health days in a 30 day period attempting suicide based on a difference-in-differences analysis using Behavioral Risk Surveillance Survey data; hypothesizing that state gender identity policies that are in favor of transgender rights and protections would be associated with reductions in the average number of bad mental health days experienced in a state.
+
+*Data and sample*
+
+Policy data was obtained from the Movement Advancement Project’s (MAP) aggregated database on LGBTQ-related polices and laws across the United States. At the state level, for each of these policies, MAP assigned a score, summed these scores, and created a “policy tally” for each state. The policies underwent an evaluation process that scored them based on their relevance to sexual orientation and gender (MAP, 2022). MAP monitors changes in the policy landscape for transgender rights at the state-level and updates maps and “snapshots” of the types of policies that are present or absent in a state, as well as shows the progression of policy change over the years. Below are the changes in the policy landscape for Arizona and Nevada between 2010 and 2020 related to gender identity 
+
+In 2010, both Arizona and Nevada had Gender Identity Tallies that were “negative” – the lowest possible score for gender identity protections given by MAP. In 2020, Arizona maintained its low score and Nevada increased to the highest possible score at “High”.
+Data was obtained on general mental health from the state BRFSS, a Centers for Disease Control and Prevention- supported survey that “... collects state data about U.S residents regarding their health-related risk behaviors, chronic health conditions, and use of preventative services”. Data from two states, Arizona and Nevada were used from the BRFSS Surveys from 2010 and 2020. These dates align with the state of LGBTQ policy as compiled by MAP.
+	
+	The primary analysis was conducted with the full population of US adults. The analysis was focused on the full population of Arizona and Nevada respondents for the following reasons: 1) not all states collected information on gender identity and sexual orientation in 2010, this included Arizona and Nevada, 2) the full population may include individuals who are LGBTQ who may not have identified as such on the survey even if given the option. 3) the existence (or non-existence) of gender identity policies likely affect the number of individuals who self-identify as sexual or gender minorities. 
+
+*Read in Behavioral Risk Factor Surveillance System data from 2010*
 
 ```{r}
 brfss10 <- read_xpt("/Users/kierantodd/Desktop/CDBRFS10.XPT",
-                    col_select = c(`IYEAR`,`_STATE`, `STOPSMK2`)) %>%
+                    col_select = c(`IYEAR`,`_STATE`, `MENTHLTH`)) %>%
   as.data.table() %>%
-  setnames(old = c("IYEAR","_STATE", "STOPSMK2"), new = c("YEAR","STATE", "MENTHLTH"))
+  setnames(old = c("IYEAR","_STATE", "MENTHLTH"), new = c("YEAR","STATE", "MENTHLTH"))
 ```
 
 ## Read in Behavioral Risk Factor Surveillance System data from 2020 
 
 ```{r}
 brfss20 <- read_xpt("/Users/kierantodd/Desktop/LLCP2020.XPT",
-                    col_select = c(`IYEAR`,`_STATE`, `STOPSMK2`)) %>%
+                    col_select = c(`IYEAR`,`_STATE`, `MENTHLTH`)) %>%
   as.data.table() %>%
-  setnames(old = c("IYEAR","_STATE", "STOPSMK2"), new = c("YEAR","STATE", "MENTHLTH"))
+  setnames(old = c("IYEAR","_STATE", "MENTHLTH"), new = c("YEAR","STATE", "MENTHLTH"))
 ```
 
 ##Combine BRFSS 2010 and BRFSS 2020 mental health data by State 
