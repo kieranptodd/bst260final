@@ -2,7 +2,7 @@ BST260 Code and Plots
 ================
 2022-12-15
 
-\##Introduction
+## Introduction
 
 The past several years have ushered in both excitement and dismay at the
 influx of both protective and anti-transgender policies at the state
@@ -53,7 +53,15 @@ two states, Arizona and Nevada were used from the BRFSS Surveys from
 2010 and 2020. These dates align with the state of LGBTQ policy as
 compiled by MAP.
 
-    The primary analysis was conducted with the full population of US adults. The analysis was focused on the full population of Arizona and Nevada respondents for the following reasons: 1) not all states collected information on gender identity and sexual orientation in 2010, this included Arizona and Nevada, 2) the full population may include individuals who are LGBTQ who may not have identified as such on the survey even if given the option. 3) the existence (or non-existence) of gender identity policies likely affect the number of individuals who self-identify as sexual or gender minorities. 
+The primary analysis was conducted with the full population of US
+adults. The analysis was focused on the full population of Arizona and
+Nevada respondents for the following reasons: 1) not all states
+collected information on gender identity and sexual orientation in 2010,
+this included Arizona and Nevada, 2) the full population may include
+individuals who are LGBTQ who may not have identified as such on the
+survey even if given the option. 3) the existence (or non-existence) of
+gender identity policies likely affect the number of individuals who
+self-identify as sexual or gender minorities.
 
 *Read in Behavioral Risk Factor Surveillance System data from 2010*
 
@@ -64,7 +72,7 @@ brfss10 <- read_xpt("/Users/kierantodd/Desktop/CDBRFS10.XPT",
   setnames(old = c("IYEAR","_STATE", "MENTHLTH"), new = c("YEAR","STATE", "MENTHLTH"))
 ```
 
-## Read in Behavioral Risk Factor Surveillance System data from 2020
+*Read in Behavioral Risk Factor Surveillance System data from 2020*
 
 ``` r
 brfss20 <- read_xpt("/Users/kierantodd/Desktop/LLCP2020.XPT",
@@ -73,15 +81,15 @@ brfss20 <- read_xpt("/Users/kierantodd/Desktop/LLCP2020.XPT",
   setnames(old = c("IYEAR","_STATE", "MENTHLTH"), new = c("YEAR","STATE", "MENTHLTH"))
 ```
 
-\##Combine BRFSS 2010 and BRFSS 2020 mental health data by State
+*Combine BRFSS 2010 and BRFSS 2020 mental health data by State*
 
 ``` r
 brfss_all <- rbindlist(list(brfss10, brfss20), use.names = T)
 brfss_all <- na.omit(brfss_all)
 ```
 
-\##Filter by Nevada and Arizona for the simple 2x2
-difference-in-differences model
+*Filter by Nevada and Arizona for the simple 2x2
+difference-in-differences model*
 
 ``` r
 brfss_all <- brfss_all |> 
@@ -109,22 +117,77 @@ na.omit(brfss_all)
     ## 15376:    32 2020       88       0
     ## 15377:    32 2020       88       0
 
-\##Rename States by their FIPS codes to the State Abbreviations
+*Rename States by their FIPS codes to the State Abbreviations*
 
 ``` r
 brfss_all$STATE = ifelse(brfss_all$"STATE" == 5,"Arizona","Nevada")
 ```
 
-\##Further clean data so that only 2010 and 2020 interview dates exist,
-also omit any rows that have no values
+*Further clean data so that only 2010 and 2020 interview dates exist,
+also omit any rows that have no values*
 
 ``` r
 brfss_analysis <- brfss_all %>% filter(YEAR %in% c(2010,2020))
 brfss_analysis <- na.omit(brfss_analysis)
 ```
 
-\##run a simple 2x2 difference in difference model using linear
-probablility model
+*Plotting a density plot of mental health bad days in the pre period*
+
+``` r
+ggplot(data=brfss_analysis[brfss_analysis$YEAR==2010], aes(x=outcome, group=as.factor(STATE)))+
+  scale_x_continuous(breaks = seq(from = 0, to = 30, by = 5)) +
+  geom_density( aes( fill=as.factor(STATE) ), alpha=0.4 ) +
+  theme_bw() + xlab("Number of Days") +
+  ylab("") + guides(fill=guide_legend(title="State")) +
+  ggtitle("Number of Bad Mental Health Days (in a month) in 2010")
+```
+
+![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Figure 1 depicts a density plot of the number of bad mental health days
+in the pre-treatment period by whether or not a state eventually
+receives treatment (i.e., Arizona relative to Nevada). These overlaid
+density plots are relatively like each other in 2010.
+
+*Plotting a density plot of mental health bad days in the post period
+(2020)*
+
+``` r
+ggplot(data=brfss_analysis[brfss_analysis$YEAR==2020], aes(x=outcome, group=as.factor(STATE)))+
+  scale_x_continuous(breaks = seq(from = 0, to = 30, by = 5)) +
+  geom_density( aes( fill=as.factor(STATE) ), alpha=0.4 ) +
+  theme_bw() + xlab("Number of Days") +
+  ylab("") + guides(fill=guide_legend(title="State")) +
+  ggtitle("Number of Bad Mental Health Days (in a month) in 2020")
+```
+
+![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+Figure 2 depicts the density of the outcome in the post-treatment period
+again disaggregated by treatment status. The plots differ more from each
+other in 2020 than they did in 2010.
+
+*Creating a plot to average mental health outcome between 2010 and 2020*
+
+``` r
+agg <- ddply(brfss_analysis,.(YEAR, STATE),summarize, val = mean(outcome))
+
+ggplot( data=agg, aes(x=as.factor(YEAR), y=val, group=STATE,
+                      color=as.factor(STATE))) +
+  geom_line(lwd=1.5)+
+  theme_bw() + geom_point(size=4) +
+  ylab("Bad Mental Health Days") + xlab("Year") +
+  guides(color=guide_legend(title="States")) +
+  ggtitle("Mental Health Trajectories for Arizona v. Nevada")
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+
+![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+*Run a simple 2x2 difference in difference model using a linear
+probability model*
 
 ``` r
 did_model1 <- lm(outcome ~ factor(STATE)*factor(YEAR), data=brfss_analysis)
@@ -152,47 +215,56 @@ summary(did_model1)
     ## Multiple R-squared:  0.001357,   Adjusted R-squared:  0.001158 
     ## F-statistic: 6.806 on 3 and 15022 DF,  p-value: 0.0001398
 
-# Plotting a density plot of mental health bad days in the pre period
+Data from 15304 adults who participated in the BRFSS in 2010 and 2020 –
+9167 adults from Arizona and 6137 adults from Nevada. In this simple 2x2
+difference-in-difference analysis, being in was associated with a
+statistically significant increase in the number of bad mental health
+days among those who live in Nevada.
 
-``` r
-ggplot(data=brfss_analysis[brfss_analysis$YEAR==2010], aes(x=outcome, group=as.factor(STATE)))+
-  scale_x_continuous(breaks = seq(from = 0, to = 30, by = 5)) +
-  geom_density( aes( fill=as.factor(STATE) ), alpha=0.4 ) +
-  theme_bw() + xlab("Number of Days") +
-  ylab("") + guides(fill=guide_legend(title="State")) +
-  ggtitle("Number of Bad Mental Health Days (in a month) in 2010")
-```
+In 2010, on average, the number of bad mental health days in Nevada was
+1.04 days lower than in Arizona.
 
-![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+In 2020, on average, the number of bad mental health days in Nevada was
+0.29 days less than the average number of bad mental health days in
+Nevada in 2010.
 
-# Plotting a density plot of mental health bad days in the post period (2020)
+The difference-in-difference estimate we can interpret as follows: in
+2020, the number of bad mental health days among those in Nevada was, on
+average, an additional 0.63 days more than Arizona in the same year. If
+the difference-in-difference identifying assumptions hold, then this
+represents the causal effect of an increase in LGBTQ policy tally in
+Nevada relative to Arizona that maintained a low LGBTQ policy tally
 
-``` r
-ggplot(data=brfss_analysis[brfss_analysis$YEAR==2020], aes(x=outcome, group=as.factor(STATE)))+
-  scale_x_continuous(breaks = seq(from = 0, to = 30, by = 5)) +
-  geom_density( aes( fill=as.factor(STATE) ), alpha=0.4 ) +
-  theme_bw() + xlab("Number of Days") +
-  ylab("") + guides(fill=guide_legend(title="State")) +
-  ggtitle("Number of Bad Mental Health Days (in a month) in 2020")
-```
+Conclusion
 
-![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+The data analysis suggests that Nevada, a state that Nevada may have had
+an uncommon shock that Arizona did not experience, does not allow us to
+distinguish the effect of treatment from the effect of the uncommon
+shock. Additionally, it is of note that the trajectory for both Arizona
+and Nevada shows that the number of bad mental health days was in the
+positive direction. This might require more theoretical investigation
+into what other events, political or not, that may be impacting overall
+mental health for residents in those states. Potential Violations of
+difference-in-difference identifying assumptions: parallel pre-trends
 
-# Creating a plot to test for parallel pre-trends
+In this analysis we assumed that the pre-trends were parallel among
+those who lived in Nevada and those who lived in Arizona. However, for
+several reasons, it could be possible that this is not true. Some
+economists argue that the parallel pre-trends assumption may be less
+valid over a longer period of time. Particularly if changes in the
+make-up of the populations of Arizona and Nevada, whereby the study
+period of ten years (2010 - 2020) may influence whether parallel
+pre-trends are a valid assumption to make.
 
-``` r
-agg <- ddply(brfss_analysis,.(YEAR, STATE),summarize, val = mean(outcome))
+*Future steps for future analyses*
 
-ggplot( data=agg, aes(x=as.factor(YEAR), y=val, group=STATE,
-                      color=as.factor(STATE))) +
-  geom_line(lwd=1.5)+
-  theme_bw() + geom_point(size=4) +
-  ylab("Bad Mental Health Days") + xlab("Year") +
-  guides(color=guide_legend(title="States")) +
-  ggtitle("Mental Health Trajectories for Arizona v. Nevada")
-```
-
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-
-![](BST260-Code-and-Plots_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+The purpose of this simple difference-in-difference analysis was to see
+if there were any significant differences in the change of the average
+number of bad mental health days between a state that had no change in
+policy tally for affirming gender identity, and a state that had a high
+level of change in policy tally for affirming gender identity, as
+defined by MAP. To account for time-invariant, state-specific factors
+would allow us to better account for differences in average bad mental
+health days across all states at baseline (2010) – using state fixed
+effects and including many more, if not all states, would yield a more
+robust and useful analysis in some ways.
